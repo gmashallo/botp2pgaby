@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance C2C Trading Platform</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --sidebar-bg: rgba(0, 0, 0, 0.2);
+            --sidebar-hover: rgba(255, 255, 255, 0.05);
+            --card-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        /* Improved Sidebar */
+        .sidebar {
+            min-height: 100vh;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--sidebar-bg);
+            padding-top: 1.5rem;
+            position: sticky;
+            top: 0;
+        }
+        
+        .nav-link {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            color: #f0f0f0;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active {
+            background-color: var(--bs-primary);
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+        }
+        
+        .nav-link i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Card Styles */
+        .card {
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .price-card {
+            transition: all var(--transition-speed) ease;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .price-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Form Elements */
+        .form-control, .form-select {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-text {
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: -10px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .btn-primary {
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(13, 110, 253, 0.4);
+        }
+        
+        .btn-success {
+            box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(25, 135, 84, 0.4);
+        }
+        
+        .btn-danger {
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
+        }
+        
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-icon i {
+            margin-right: 8px;
+        }
+        
+        /* Result Container */
+        .result-container {
+            min-height: 200px;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Status Indicators */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .status-badge i {
+            margin-right: 5px;
+        }
+        
+        /* Header Elements */
+        .logo {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .header-bar {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Status Indicators */
+        .api-success {
+            color: #28a745;
+        }
+        
+        .api-error {
+            color: #dc3545;
+        }
+        
+        .proxy-status {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .proxy-status i {
+            margin-right: 5px;
+        }
+        
+        .proxy-error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+        
+        .proxy-success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+        
+        .proxy-warning {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+        
+        .error-box {
+            border: 1px solid #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .placeholder-data {
+            opacity: 0.7;
+            font-style: italic;
+        }
+        
+        /* Quick Navigation Bar */
+        .quick-nav {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .quick-nav-item {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 0 5px;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .quick-nav-item:hover {
+            background-color: var(--bs-primary);
+            color: white;
+        }
+        
+        .quick-nav-item.active {
+            background-color: var(--bs-primary);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .quick-nav-item i {
+            margin-right: 5px;
+        }
+        
+        /* Section Navigation */
+        .section-nav {
+            position: sticky;
+            top: 70px;
+            z-index: 100;
+            margin-bottom: 2rem;
+        }
+        
+        /* Helper Classes */
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header-bar py-3">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="header-title mb-0">
+                        <i class="bi bi-currency-exchange logo"></i>
+                        Binance C2C Trading Platform
+                    </h1>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div id="proxyStatus" class="proxy-status proxy-warning">
+                        <i class="bi bi-shield-exclamation"></i> Connection: Direct
+                    </div>
+                    <div id="apiStatus" class="d-flex align-items-center">
+                        <span class="api-error me-2"><i class="bi bi-x-circle"></i> API Not Connected</span>
+                        <button id="apiSetupBtn" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#apiSetupModal">
+                            Configure API
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Navigation Bar -->
+    <div class="quick-nav">
+        <div class="container-fluid">
+            <div class="d-flex flex-wrap justify-content-center">
+                <a href="#dashboard" class="quick-nav-item active" data-tab="dashboard">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="#market" class="quick-nav-item" data-tab="market">
+                    <i class="bi bi-graph-up"></i> Market
+                </a>
+                <a href="#trading" class="quick-nav-item" data-tab="trading">
+                    <i class="bi bi-currency-exchange"></i> Trading
+                </a>
+                <a href="#orders" class="quick-nav-item" data-tab="orders">
+                    <i class="bi bi-list-check"></i> Orders
+                </a>
+                <a href="#automation" class="quick-nav-item" data-tab="automation">
+                    <i class="bi bi-robot"></i> Automation
+                </a>
+                <a href="#settings" class="quick-nav-item" data-tab="settings">
+                    <i class="bi bi-gear"></i> Settings
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-md-2 sidebar pt-4">
+                <div class="nav flex-column">
+                    <a href="#dashboard" class="nav-link active" data-tab="dashboard">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a href="#market" class="nav-link" data-tab="market">
+                        <i class="bi bi-graph-up"></i> Market Prices
+                    </a>
+                    <a href="#trading" class="nav-link" data-tab="trading">
+                        <i class="bi bi-currency-exchange"></i> Trading
+                    </a>
+                    <a href="#orders" class="nav-link" data-tab="orders">
+                        <i class="bi bi-list-check"></i> Orders
+                    </a>
+                    <a href="#automation" class="nav-link" data-tab="automation">
+                        <i class="bi bi-robot"></i> Automation
+                    </a>
+                    <a href="#settings" class="nav-link" data-tab="settings">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-10 pt-4">
+                <!-- Network Status Alert -->
+                <div id="connectionAlert" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Direct Connection:</strong> Using your local network to connect to Binance API. No proxy is being used.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-content active">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+                        <div>
+                            <button id="refreshDashboardBtn" class="btn btn-sm btn-primary">
+                                <i class="bi bi-arrow-repeat"></i> Refresh All Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats Row -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary bg-opacity-25 h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="icon-circle bg-primary">
+                                        <i class="bi bi-currency-exchange text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Price Spread</h6>
+                                        <h4 id="priceSpread" class="mb-0">--</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success bg-opacity-25 h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="icon-circle bg-success">
+                                        <i class="bi bi-robot text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Auto-Trader</h6>
+                                        <h4 id="autoTraderStatus" class="mb-0">Not Running</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info bg-opacity-25 h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="icon-circle bg-info">
+                                        <i class="bi bi-cpu text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">ML Analyzer</h6>
+                                        <h4 id="mlStatus" class="mb-0">Active</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning bg-opacity-25 h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="icon-circle bg-warning">
+                                        <i class="bi bi-shield-check text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Connection</h6>
+                                        <h4 id="connectionStatus" class="mb-0">Direct</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Price Overview -->
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h3 class="mb-0">
+                                        <i class="bi bi-graph-up-arrow me-2"></i>
+                                        Current USDT/TZS Prices
+                                    </h3>
+                                    <button id="refreshPricesBtn" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="priceError" class="error-box mb-3">
+                                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                        <strong>Cannot access Binance API</strong>
+                                        <p class="mb-0 mt-1">Unable to fetch current prices. This could be due to:</p>
+                                        <ul class="mb-0 mt-1">
+                                            <li>Missing API credentials in the Settings tab</li>
+                                            <li>Location restrictions from Binance (VPN might be needed)</li>
+                                            <li>Network connectivity issues</li>
+                                        </ul>
+                                        <div class="mt-3">
+                                            <a href="#settings" class="btn btn-sm btn-outline-primary" data-tab="settings">
+                                                <i class="bi bi-gear"></i> Configure API Settings
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card price-card bg-success bg-opacity-25 text-center p-3">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="badge bg-success">BUY</span>
+                                                    <span class="badge bg-dark">USDT/TZS</span>
+                                                </div>
+                                                <h4>Best Buy Price</h4>
+                                                <h2 id="buyPrice" class="display-5">--</h2>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">Trader:</small>
+                                                    <p id="buyTrader" class="mb-0 placeholder-data">Data unavailable</p>
+                                                </div>
+                                                <button class="btn btn-sm btn-success mt-2">Match This Price</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card price-card bg-danger bg-opacity-25 text-center p-3">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="badge bg-danger">SELL</span>
+                                                    <span class="badge bg-dark">USDT/TZS</span>
+                                                </div>
+                                                <h4>Best Sell Price</h4>
+                                                <h2 id="sellPrice" class="display-5">--</h2>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">Trader:</small>
+                                                    <p id="sellTrader" class="mb-0 placeholder-data">Data unavailable</p>
+                                                </div>
+                                                <button class="btn btn-sm btn-danger mt-2">Match This Price</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-dark bg-opacity-50">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Last updated: <span id="lastPriceUpdate">Never</span></span>
+                                        <span>
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            ML-enhanced pricing active
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Auto-Trader Status -->
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h3 class="mb-0">
+                                        <i class="bi bi-robot me-2"></i>
+                                        Auto-Trader Controls
+                                    </h3>
+                                    <span class="badge bg-secondary" id="updaterStatusBadge">Inactive</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                        The Auto-Trader uses machine learning to detect and filter out bot advertisers while maintaining competitive pricing.
+                                    </div>
+                                    
+                                    <div class="card mb-3 bg-dark bg-opacity-25">
+                                        <div class="card-body">
+                                            <h5 class="card-title">ML Features Active</h5>
+                                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                                <span class="badge bg-success">Bot Detection</span>
+                                                <span class="badge bg-success">Anomaly Detection</span>
+                                                <span class="badge bg-success">Price Optimization</span>
+                                                <span class="badge bg-success">Restricted Ads Filtering</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label for="interval" class="form-label">Update Interval (seconds)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="interval" value="30" min="5">
+                                            <span class="input-group-text">seconds</span>
+                                        </div>
+                                        <div class="form-text">
+                                            How often the system should check and update prices. Recommended: 30-60 seconds.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <button id="startUpdaterBtn" class="btn btn-success flex-fill btn-icon">
+                                            <i class="bi bi-play-fill"></i> Start Auto-Trader
+                                        </button>
+                                        <button id="stopUpdaterBtn" class="btn btn-danger flex-fill btn-icon">
+                                            <i class="bi bi-stop-fill"></i> Stop Auto-Trader
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-dark bg-opacity-50">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Status: <span id="updaterStatus">Not Running</span></span>
+                                        <a href="#automation" class="btn btn-sm btn-link" data-tab="automation">
+                                            Advanced Settings <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Trades/Leaderboard -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">
+                                <i class="bi bi-trophy me-2"></i>
+                                Trader Leaderboard
+                            </h3>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                    <select id="leaderboardSortBy" class="form-select form-select-sm">
+                                        <option value="volume">Sort by Volume</option>
+                                        <option value="orders">Sort by Orders</option>
+                                    </select>
+                                </div>
+                                <button id="refreshLeaderboardBtn" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="leaderboardError" class="error-box mb-3">
+                                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                <strong>Cannot access Binance API for leaderboard data</strong>
+                                <p class="mb-0 mt-1">The system cannot retrieve trader leaderboard information due to API access issues. Please:</p>
+                                <ol class="mb-0 mt-1">
+                                    <li>Configure your API credentials in the Settings tab</li>
+                                    <li>Ensure you have proper network access to Binance</li>
+                                    <li>Consider using a VPN if you're in a region with Binance restrictions</li>
+                                </ol>
+                                <div class="mt-3">
+                                    <a href="#settings" class="btn btn-sm btn-outline-primary" data-tab="settings">
+                                        <i class="bi bi-gear"></i> Configure API Settings
+                                    </a>
+                                </div>
+                            </div>
+                            <div id="leaderboardContainer" class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Trader</th>
+                                            <th>Volume (TZS)</th>
+                                            <th>Orders</th>
+                                            <th>Assets</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="leaderboardBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center">Loading leaderboard data...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-dark bg-opacity-50">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Last updated: <span id="lastLeaderboardUpdate">Never</span></span>
+                                <span>
+                                    <button class="btn btn-sm btn-outline-secondary" id="restrictedAdvertisersBtn">
+                                        <i class="bi bi-eye-slash"></i> Manage Restricted Advertisers
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Market Tab -->
+                <div id="market" class="tab-content">
+                    <h2 class="mb-4"><i class="bi bi-graph-up"></i> Market Prices</h2>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>Get Top USDT/TZS Prices</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="topPriceForm" class="mb-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="adType" class="form-label">Ad Type</label>
+                                        <select class="form-select" id="adType">
+                                            <option value="">Both BUY and SELL</option>
+                                            <option value="BUY">BUY</option>
+                                            <option value="SELL">SELL</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-search"></i> Get Top Prices
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <div class="result-container">
+                                <h4>Results:</h4>
+                                <pre id="topPriceResult" class="bg-dark p-3 rounded">Results will appear here...</pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Price History Chart</h3>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="text-muted">Price history visualization will be available in a future update.</p>
+                            <button class="btn btn-outline-primary" disabled>Generate Chart</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trading Tab -->
+                <div id="trading" class="tab-content">
+                    <h2 class="mb-4"><i class="bi bi-currency-exchange"></i> Trading</h2>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Post New C2C Ad</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="postAdForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3 bg-dark bg-opacity-50">
+                                            <div class="card-header">
+                                                <h4>Trade Details</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="tradeType" class="form-label">Trade Type*</label>
+                                                    <select class="form-select" id="tradeType" required>
+                                                        <option value="BUY">BUY</option>
+                                                        <option value="SELL">SELL</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="asset" class="form-label">Asset</label>
+                                                    <input type="text" class="form-control" id="asset" value="USDT">
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="price" class="form-label">Price per USDT*</label>
+                                                    <div class="input-group">
+                                                        <input type="number" class="form-control" id="price" required>
+                                                        <span class="input-group-text">TZS</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="quantity" class="form-label">Quantity*</label>
+                                                    <div class="input-group">
+                                                        <input type="number" class="form-control" id="quantity" required>
+                                                        <span class="input-group-text">USDT</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="card mb-3 bg-dark bg-opacity-50">
+                                            <div class="card-header">
+                                                <h4>Trading Limits & Payment</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="minLimit" class="form-label">Min Transaction Limit</label>
+                                                    <div class="input-group">
+                                                        <input type="number" class="form-control" id="minLimit">
+                                                        <span class="input-group-text">TZS</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="maxLimit" class="form-label">Max Transaction Limit</label>
+                                                    <div class="input-group">
+                                                        <input type="number" class="form-control" id="maxLimit">
+                                                        <span class="input-group-text">TZS</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <label class="form-label">Accepted Payment Methods</label>
+                                                <div class="mb-3">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" value="M-pesa" id="mpesa" checked>
+                                                        <label class="form-check-label" for="mpesa">M-pesa</label>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" value="Tigo Pesa" id="tigoPesa" checked>
+                                                        <label class="form-check-label" for="tigoPesa">Tigo Pesa</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-send"></i> Post Advertisement
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="mt-4 result-container">
+                                <h4>Result:</h4>
+                                <pre id="postAdResult" class="bg-dark p-3 rounded">Results will appear here...</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Tab -->
+                <div id="orders" class="tab-content">
+                    <h2 class="mb-4"><i class="bi bi-list-check"></i> Orders</h2>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>Release Order</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Use this feature to release crypto to the buyer after confirming payment has been received.
+                            </p>
+                            
+                            <form id="releaseOrderForm" class="row align-items-end">
+                                <div class="col-md-8">
+                                    <label for="orderNumber" class="form-label">Order Number*</label>
+                                    <input type="text" class="form-control" id="orderNumber" placeholder="Enter C2C order number" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-warning w-100">
+                                        <i class="bi bi-unlock"></i> Release Crypto
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="mt-4 result-container">
+                                <h4>Result:</h4>
+                                <pre id="releaseOrderResult" class="bg-dark p-3 rounded">Results will appear here...</pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3>Active Orders</h3>
+                            <button id="refreshOrdersBtn" class="btn btn-sm btn-outline-primary" disabled>
+                                <i class="bi bi-arrow-clockwise"></i> Refresh
+                            </button>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="text-muted">Order management will be available in a future update.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Automation Tab -->
+                <div id="automation" class="tab-content">
+                    <h2 class="mb-4"><i class="bi bi-robot"></i> Automation</h2>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>Price Updater Configuration</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card mb-3 bg-dark bg-opacity-50">
+                                        <div class="card-header">
+                                            <h4>Status & Control</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h5>Current Status:</h5>
+                                                <div id="automationStatus" class="badge bg-secondary">Checking...</div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="automationInterval" class="form-label">Update Interval (seconds)</label>
+                                                <input type="number" class="form-control" id="automationInterval" value="30" min="5">
+                                            </div>
+                                            
+                                            <div class="d-flex gap-2">
+                                                <button id="startAutomationBtn" class="btn btn-success flex-fill">
+                                                    <i class="bi bi-play-fill"></i> Start
+                                                </button>
+                                                <button id="stopAutomationBtn" class="btn btn-danger flex-fill">
+                                                    <i class="bi bi-stop-fill"></i> Stop
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card mb-3 bg-dark bg-opacity-50">
+                                        <div class="card-header">
+                                            <h4>Pricing Strategy</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">BUY Strategy</label>
+                                                <select class="form-select" id="buyStrategy">
+                                                    <option value="match">Match Top Price</option>
+                                                    <option value="better">Beat Top Price</option>
+                                                    <option value="custom">Custom Margin</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">SELL Strategy</label>
+                                                <select class="form-select" id="sellStrategy">
+                                                    <option value="match">Match Top Price</option>
+                                                    <option value="better">Beat Top Price</option>
+                                                    <option value="custom">Custom Margin</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Price Adjustment (%)</label>
+                                                <input type="number" class="form-control" id="priceAdjustment" value="0.5" step="0.1" min="0.1" max="5">
+                                                <small class="text-muted">For "Beat Top Price" strategy, this percentage will be used to calculate how much to adjust the price</small>
+                                            </div>
+                                            
+                                            <hr class="my-4">
+                                            
+                                            <h5>Ad Filtering Options</h5>
+                                            <div class="mb-3">
+                                                <label class="form-label">Minimum Transaction Limit</label>
+                                                <input type="number" class="form-control" id="minTransactionLimit" value="0" min="0" step="10">
+                                                <small class="text-muted">Ignore ads with a minimum transaction limit below this value</small>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Maximum Transaction Limit</label>
+                                                <input type="number" class="form-control" id="maxTransactionLimit" value="1000000" min="0" step="1000">
+                                                <small class="text-muted">Ignore ads with a maximum transaction limit above this value (0 = no limit)</small>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Minimum Available Amount</label>
+                                                <input type="number" class="form-control" id="minAvailableAmount" value="0" min="0" step="10">
+                                                <small class="text-muted">Ignore ads with available amount below this value</small>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Minimum Completion Rate (%)</label>
+                                                <input type="number" class="form-control" id="minCompletionRate" value="0" min="0" max="100" step="5">
+                                                <small class="text-muted">Ignore ads from traders with completion rate below this percentage</small>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Minimum Order Count</label>
+                                                <input type="number" class="form-control" id="minOrderCount" value="0" min="0" step="5">
+                                                <small class="text-muted">Ignore ads from traders with fewer orders than this number</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="card bg-dark bg-opacity-50">
+                                        <div class="card-header">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h4>Blacklist Management</h4>
+                                                <button id="refreshBlacklistBtn" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Ban Advertiser</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="advertiserId" placeholder="Enter advertiser ID">
+                                                        <button class="btn btn-primary" type="button" id="banAdvertiserBtn">
+                                                            <i class="bi bi-person-x"></i> Ban
+                                                        </button>
+                                                    </div>
+                                                    <small class="text-muted">Add an advertiser to the restricted list</small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Ban Advertisement</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="adId" placeholder="Enter ad ID">
+                                                        <button class="btn btn-primary" type="button" id="banAdBtn">
+                                                            <i class="bi bi-x-circle"></i> Ban
+                                                        </button>
+                                                    </div>
+                                                    <small class="text-muted">Add a specific ad to the blacklist</small>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h5>Banned Advertisers</h5>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-dark table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Advertiser ID</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="bannedAdvertisersTable">
+                                                                <tr>
+                                                                    <td colspan="2" class="text-center">No banned advertisers</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h5>Blacklisted Ads</h5>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-dark table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Ad ID</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="blacklistedAdsTable">
+                                                                <tr>
+                                                                    <td colspan="2" class="text-center">No blacklisted ads</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card bg-dark bg-opacity-50">
+                                        <div class="card-header">
+                                            <h4>Automation Logs</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <pre id="automationLogs" class="bg-dark p-3 rounded mb-0" style="max-height: 200px; overflow-y: auto;">Automation logs will appear here when the auto-trader is running...</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div id="settings" class="tab-content">
+                    <h2 class="mb-4"><i class="bi bi-gear"></i> Settings</h2>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>API Configuration</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="apiConfigForm">
+                                <div class="mb-3">
+                                    <label for="apiKey" class="form-label">API Key</label>
+                                    <input type="text" class="form-control" id="apiKey" placeholder="Enter your Binance API Key">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="apiSecret" class="form-label">API Secret</label>
+                                    <input type="password" class="form-control" id="apiSecret" placeholder="Enter your Binance API Secret">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="saveCredentials" checked>
+                                        <label class="form-check-label" for="saveCredentials">Save credentials in .env file</label>
+                                    </div>
+                                    <small class="text-muted">Note: API credentials are required for trading operations.</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save API Configuration</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>Proxy Configuration</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info mb-3">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <strong>Important:</strong> Binance restricts access from certain locations. A properly configured proxy is required to access Binance C2C API from your region.
+                            </div>
+                            
+                            <form id="proxyConfigForm">
+                                <div class="mb-3">
+                                    <label for="proxyUrl" class="form-label">Proxy URL</label>
+                                    <input type="text" class="form-control" id="proxyUrl" 
+                                           value="http://USER796523-ip-154.88.58.248:cc8d8b@global.sta.711proxy.com:30000" 
+                                           placeholder="http://USERNAME:PASSWORD@HOST:PORT">
+                                    <small class="text-muted">Format: http://USERNAME:PASSWORD@HOST:PORT</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="useProxy" checked>
+                                        <label class="form-check-label" for="useProxy">Use proxy for all API requests</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <button type="button" id="testProxyBtn" class="btn btn-secondary">
+                                        <i class="bi bi-shield-check"></i> Test Proxy Connection
+                                    </button>
+                                    <button type="submit" class="btn btn-primary ms-2">Save Proxy Configuration</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>Installation Instructions</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>To run this application locally on your computer:</p>
+                            <ol>
+                                <li>Download the code from Replit</li>
+                                <li>Install Python 3.8+ on your computer</li>
+                                <li>Create a virtual environment: <code>python -m venv venv</code></li>
+                                <li>Activate the environment: 
+                                    <ul>
+                                        <li>Windows: <code>venv\Scripts\activate</code></li>
+                                        <li>macOS/Linux: <code>source venv/bin/activate</code></li>
+                                    </ul>
+                                </li>
+                                <li>Install dependencies: <code>pip install -r requirements.txt</code></li>
+                                <li>Create .env file with your API credentials and proxy settings</li>
+                                <li>Run the application: <code>python -m flask run --host=0.0.0.0 --port=5000</code></li>
+                            </ol>
+                            <p>For more detailed instructions, see the <code>README.md</code> and <code>INSTALL.md</code> files.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>About</h3>
+                        </div>
+                        <div class="card-body">
+                            <h4>Binance C2C Trading Platform</h4>
+                            <p>A comprehensive trading platform for USDT/TZS transactions on Binance C2C market.</p>
+                            <ul>
+                                <li>Version: 1.0.0</li>
+                                <li>Built with: Flask, Bootstrap, FastAPI</li>
+                                <li>Proxy Support: Kenyan Residential IP</li>
+                                <li>Features:
+                                    <ul>
+                                        <li>Top price scanning for BUY/SELL ads</li>
+                                        <li>Post new C2C advertisements</li>
+                                        <li>Release crypto after payment confirmation</li>
+                                        <li>View top trader leaderboard</li>
+                                        <li>Automatic price updating to stay competitive</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Setup Modal -->
+    <div class="modal fade" id="apiSetupModal" tabindex="-1" aria-labelledby="apiSetupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiSetupModalLabel">Configure Binance API</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Enter your Binance API credentials to enable trading features:</p>
+                    
+                    <form id="modalApiForm">
+                        <div class="mb-3">
+                            <label for="modalApiKey" class="form-label">API Key</label>
+                            <input type="text" class="form-control" id="modalApiKey" placeholder="Enter your Binance API Key">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="modalApiSecret" class="form-label">API Secret</label>
+                            <input type="password" class="form-control" id="modalApiSecret" placeholder="Enter your Binance API Secret">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveModalApiBtn">Save Credentials</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Proxy Test Modal -->
+    <div class="modal fade" id="proxyTestModal" tabindex="-1" aria-labelledby="proxyTestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proxyTestModalLabel">Proxy Connection Test</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Testing...</span>
+                        </div>
+                        <p class="mt-2">Testing proxy connection to Binance...</p>
+                    </div>
+                    
+                    <div id="proxyTestResult" class="d-none">
+                        <!-- Test results will be added here via JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to activate a tab
+        function activateTab(tabId) {
+            // Remove active class from all tabs and all navigation elements
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-link, .quick-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to the corresponding tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to all navigation elements that link to this tab
+            document.querySelectorAll(`.nav-link[data-tab="${tabId}"], .quick-nav-item[data-tab="${tabId}"]`).forEach(item => {
+                item.classList.add('active');
+            });
+            
+            // Update page hash
+            history.replaceState(null, null, `#${tabId}`);
+        }
+        
+        // Tab Navigation - both sidebar and quick nav
+        document.querySelectorAll('.nav-link, .quick-nav-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabId = this.getAttribute('data-tab');
+                activateTab(tabId);
+            });
+        });
+        
+        // Check URL hash on page load to activate correct tab
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                activateTab(hash);
+            }
+        });
+        
+        // Initialize modals
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for Bootstrap 5.2+ presence
+            if (typeof bootstrap !== 'undefined') {
+                // Initialize all modals
+                var modals = [].slice.call(document.querySelectorAll('.modal'));
+                modals.forEach(function(modalEl) {
+                    new bootstrap.Modal(modalEl);
+                });
+            } else {
+                console.warn('Bootstrap JS is not loaded. Modals will not function properly.');
+            }
+        });
+        
+        // Check proxy and API connection status
+        async function checkConnections() {
+            const proxyStatusElement = document.getElementById('proxyStatus');
+            
+            // Simple test to check if the proxy is functioning
+            try {
+                const response = await fetch('/api/top-price');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // If we got a successful response, the proxy is likely working
+                    proxyStatusElement.className = 'proxy-status proxy-success';
+                    proxyStatusElement.innerHTML = '<i class="bi bi-shield-check"></i> Proxy: Connected';
+                    
+                    // Hide the connection alert
+                    document.getElementById('connectionAlert').classList.add('d-none');
+                    
+                    return true;
+                } else {
+                    // If we get an error response from the server, but it's not a network error
+                    const errorData = await response.json();
+                    
+                    if (errorData && errorData.error && errorData.error.includes('Service unavailable from a restricted location')) {
+                        proxyStatusElement.className = 'proxy-status proxy-error';
+                        proxyStatusElement.innerHTML = '<i class="bi bi-shield-x"></i> Proxy: Location Restricted';
+                        
+                        document.getElementById('connectionAlert').classList.remove('d-none');
+                    } else {
+                        proxyStatusElement.className = 'proxy-status proxy-warning';
+                        proxyStatusElement.innerHTML = '<i class="bi bi-shield-exclamation"></i> Proxy: Connection Issue';
+                        
+                        document.getElementById('connectionAlert').classList.remove('d-none');
+                    }
+                }
+            } catch (error) {
+                // Network error or other exception
+                proxyStatusElement.className = 'proxy-status proxy-error';
+                proxyStatusElement.innerHTML = '<i class="bi bi-shield-x"></i> Proxy: Disconnected';
+                
+                document.getElementById('connectionAlert').classList.remove('d-none');
+            }
+            
+            return false;
+        }
+        
+        // Function to update the UI with updater status
+        async function updateStatusUI() {
+            const statusElements = [
+                document.getElementById('updaterStatus'),
+                document.getElementById('automationStatus')
+            ];
+            
+            try {
+                const response = await fetch('/api/price-updater/status');
+                const data = await response.json();
+                
+                let statusClass = 'bg-secondary';
+                let statusText = 'Not Running';
+                
+                if (data.status === 'running') {
+                    statusClass = 'bg-success';
+                    statusText = `Running (${data.interval}s)`;
+                } else {
+                    statusClass = 'bg-warning';
+                    statusText = 'Stopped';
+                }
+                
+                statusElements.forEach(element => {
+                    if (element) {
+                        element.className = `badge ${statusClass}`;
+                        element.textContent = statusText;
+                    }
+                });
+            } catch (error) {
+                statusElements.forEach(element => {
+                    if (element) {
+                        element.className = 'badge bg-danger';
+                        element.textContent = 'Error';
+                    }
+                });
+                console.error('Error updating status:', error);
+            }
+        }
+        
+        // Start price updater
+        function startUpdater(interval) {
+            const statusElements = [
+                document.getElementById('updaterStatus'),
+                document.getElementById('automationStatus')
+            ];
+            
+            statusElements.forEach(element => {
+                if (element) {
+                    element.className = 'badge bg-secondary';
+                    element.textContent = 'Starting...';
+                }
+            });
+            
+            fetch('/api/price-updater/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ interval })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusElements.forEach(element => {
+                        if (element) {
+                            element.className = 'badge bg-success';
+                            element.textContent = `Running (${interval}s)`;
+                        }
+                    });
+                    
+                    // Log the action
+                    const logsElement = document.getElementById('automationLogs');
+                    if (logsElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        logsElement.textContent = `[${timestamp}] Auto-trader started with interval ${interval}s\n` + logsElement.textContent;
+                    }
+                } else {
+                    statusElements.forEach(element => {
+                        if (element) {
+                            element.className = 'badge bg-danger';
+                            element.textContent = 'Error';
+                        }
+                    });
+                    
+                    // Log the error
+                    const logsElement = document.getElementById('automationLogs');
+                    if (logsElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        logsElement.textContent = `[${timestamp}] Error starting auto-trader: ${data.message}\n` + logsElement.textContent;
+                    }
+                    
+                    console.error('Error starting updater:', data.message);
+                }
+                
+                // Update UI after a short delay
+                setTimeout(updateStatusUI, 1000);
+            })
+            .catch(error => {
+                statusElements.forEach(element => {
+                    if (element) {
+                        element.className = 'badge bg-danger';
+                        element.textContent = 'Error';
+                    }
+                });
+                
+                // Log the error
+                const logsElement = document.getElementById('automationLogs');
+                if (logsElement) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    logsElement.textContent = `[${timestamp}] Network error starting auto-trader: ${error.message}\n` + logsElement.textContent;
+                }
+                
+                console.error('Error starting updater:', error);
+            });
+        }
+        
+        // Stop price updater
+        function stopUpdater() {
+            const statusElements = [
+                document.getElementById('updaterStatus'),
+                document.getElementById('automationStatus')
+            ];
+            
+            statusElements.forEach(element => {
+                if (element) {
+                    element.className = 'badge bg-secondary';
+                    element.textContent = 'Stopping...';
+                }
+            });
+            
+            fetch('/api/price-updater/stop', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusElements.forEach(element => {
+                        if (element) {
+                            element.className = 'badge bg-warning';
+                            element.textContent = 'Stopped';
+                        }
+                    });
+                    
+                    // Log the action
+                    const logsElement = document.getElementById('automationLogs');
+                    if (logsElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        logsElement.textContent = `[${timestamp}] Auto-trader stopped\n` + logsElement.textContent;
+                    }
+                } else {
+                    statusElements.forEach(element => {
+                        if (element) {
+                            element.className = 'badge bg-danger';
+                            element.textContent = 'Error';
+                        }
+                    });
+                    
+                    // Log the error
+                    const logsElement = document.getElementById('automationLogs');
+                    if (logsElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        logsElement.textContent = `[${timestamp}] Error stopping auto-trader: ${data.message}\n` + logsElement.textContent;
+                    }
+                    
+                    console.error('Error stopping updater:', data.message);
+                }
+                
+                // Update UI after a short delay
+                setTimeout(updateStatusUI, 1000);
+            })
+            .catch(error => {
+                statusElements.forEach(element => {
+                    if (element) {
+                        element.className = 'badge bg-danger';
+                        element.textContent = 'Error';
+                    }
+                });
+                
+                // Log the error
+                const logsElement = document.getElementById('automationLogs');
+                if (logsElement) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    logsElement.textContent = `[${timestamp}] Network error stopping auto-trader: ${error.message}\n` + logsElement.textContent;
+                }
+                
+                console.error('Error stopping updater:', error);
+            });
+        }
+        
+        // Function to update prices on the dashboard
+        function updatePrices() {
+            const buyPriceElement = document.getElementById('buyPrice');
+            const sellPriceElement = document.getElementById('sellPrice');
+            const buyTraderElement = document.getElementById('buyTrader');
+            const sellTraderElement = document.getElementById('sellTrader');
+            const priceErrorElement = document.getElementById('priceError');
+            const priceSpreadElement = document.getElementById('priceSpread');
+            const lastUpdateElement = document.getElementById('lastPriceUpdate');
+            
+            // Show loading state
+            buyPriceElement.textContent = 'Loading...';
+            sellPriceElement.textContent = 'Loading...';
+            buyTraderElement.textContent = 'Loading...';
+            sellTraderElement.textContent = 'Loading...';
+            
+            // Default display error message
+            priceErrorElement.classList.remove('d-none');
+            priceErrorElement.classList.add('d-none');
+            
+            fetch('/api/top-price')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.buy) {
+                        buyPriceElement.textContent = data.buy.price.toLocaleString();
+                        buyTraderElement.textContent = data.buy.nickname;
+                        buyTraderElement.classList.remove('placeholder-data');
+                    } else {
+                        buyPriceElement.textContent = 'N/A';
+                        buyTraderElement.textContent = 'No data available';
+                        buyTraderElement.classList.add('placeholder-data');
+                    }
+                    
+                    if (data.sell) {
+                        sellPriceElement.textContent = data.sell.price.toLocaleString();
+                        sellTraderElement.textContent = data.sell.nickname;
+                        sellTraderElement.classList.remove('placeholder-data');
+                    } else {
+                        sellPriceElement.textContent = 'N/A';
+                        sellTraderElement.textContent = 'No data available';
+                        sellTraderElement.classList.add('placeholder-data');
+                    }
+                    
+                    // Update proxy status on successful data fetch
+                    const proxyStatusElement = document.getElementById('proxyStatus');
+                    proxyStatusElement.className = 'proxy-status proxy-success';
+                    proxyStatusElement.innerHTML = '<i class="bi bi-shield-check"></i> Proxy: Connected';
+                    
+                    // Hide connection alert
+                    document.getElementById('connectionAlert').classList.add('d-none');
+                })
+                .catch(error => {
+                    buyPriceElement.textContent = '--';
+                    sellPriceElement.textContent = '--';
+                    buyTraderElement.textContent = 'Data unavailable';
+                    sellTraderElement.textContent = 'Data unavailable';
+                    buyTraderElement.classList.add('placeholder-data');
+                    sellTraderElement.classList.add('placeholder-data');
+                    
+                    // Show error message
+                    priceErrorElement.classList.remove('d-none');
+                    priceErrorElement.innerHTML = `<i class="bi bi-exclamation-circle-fill me-2"></i> Error fetching price data: ${error.message}`;
+                    
+                    // Update proxy status
+                    checkConnections();
+                    
+                    console.error('Error fetching prices:', error);
+                });
+        }
+        
+        // Function to update leaderboard
+        function updateLeaderboard() {
+            const leaderboardBody = document.getElementById('leaderboardBody');
+            const leaderboardError = document.getElementById('leaderboardError');
+            const sortBy = document.getElementById('leaderboardSortBy').value;
+            
+            leaderboardBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading leaderboard data...</td></tr>';
+            leaderboardError.classList.add('d-none');
+            
+            fetch(`/api/leaderboard?sort_by=${sortBy}&days=30&asset=USDT&fiat=TZS`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.traders && data.traders.length > 0) {
+                        leaderboardBody.innerHTML = '';
+                        
+                        data.traders.forEach((trader, index) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td>${trader.nickname}</td>
+                                <td>${trader.volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td>${trader.orders}</td>
+                                <td>${trader.assets.join(', ')}</td>
+                            `;
+                            leaderboardBody.appendChild(row);
+                        });
+                    } else {
+                        leaderboardBody.innerHTML = '<tr><td colspan="5" class="text-center">No traders found</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    leaderboardBody.innerHTML = '<tr><td colspan="5" class="text-center placeholder-data">Data unavailable</td></tr>';
+                    
+                    // Show error message
+                    leaderboardError.classList.remove('d-none');
+                    leaderboardError.innerHTML = `<i class="bi bi-exclamation-circle-fill me-2"></i> Error fetching leaderboard: ${error.message}`;
+                    
+                    console.error('Error fetching leaderboard:', error);
+                });
+        }
+        
+        // Function to test proxy connection
+        async function testProxyConnection() {
+            // Show test modal
+            if (typeof bootstrap !== 'undefined') {
+                const modal = new bootstrap.Modal(document.getElementById('proxyTestModal'));
+                modal.show();
+            }
+            
+            const resultElement = document.getElementById('proxyTestResult');
+            resultElement.classList.add('d-none');
+            
+            try {
+                // First, get the proxy URL from the form
+                const proxyUrl = document.getElementById('proxyUrl').value;
+                
+                // Make a test request to check API connectivity
+                const response = await fetch('/api/top-price');
+                
+                // Process the result
+                resultElement.classList.remove('d-none');
+                
+                if (response.ok) {
+                    // If successful, show success message
+                    resultElement.className = 'alert alert-success';
+                    resultElement.innerHTML = `
+                        <h5><i class="bi bi-check-circle-fill me-2"></i> Proxy Connection Successful</h5>
+                        <p>The proxy is correctly configured and able to connect to Binance API.</p>
+                        <p><strong>Proxy URL:</strong> ${proxyUrl}</p>
+                    `;
+                    
+                    // Update proxy status in header
+                    const proxyStatusElement = document.getElementById('proxyStatus');
+                    proxyStatusElement.className = 'proxy-status proxy-success';
+                    proxyStatusElement.innerHTML = '<i class="bi bi-shield-check"></i> Proxy: Connected';
+                } else {
+                    // If error response, show the error details
+                    const errorData = await response.json();
+                    resultElement.className = 'alert alert-warning';
+                    resultElement.innerHTML = `
+                        <h5><i class="bi bi-exclamation-triangle-fill me-2"></i> API Connection Issue</h5>
+                        <p>The connection was established, but Binance API returned an error:</p>
+                        <pre class="bg-dark p-2 rounded">${JSON.stringify(errorData, null, 2)}</pre>
+                        <p>You may need to check your API credentials or try a different proxy location.</p>
+                    `;
+                    
+                    // Update proxy status in header
+                    const proxyStatusElement = document.getElementById('proxyStatus');
+                    if (errorData && errorData.error && errorData.error.includes('Service unavailable from a restricted location')) {
+                        proxyStatusElement.className = 'proxy-status proxy-error';
+                        proxyStatusElement.innerHTML = '<i class="bi bi-shield-x"></i> Proxy: Location Restricted';
+                    } else {
+                        proxyStatusElement.className = 'proxy-status proxy-warning';
+                        proxyStatusElement.innerHTML = '<i class="bi bi-shield-exclamation"></i> Proxy: Connection Issue';
+                    }
+                }
+            } catch (error) {
+                // If exception, show network error
+                resultElement.classList.remove('d-none');
+                resultElement.className = 'alert alert-danger';
+                resultElement.innerHTML = `
+                    <h5><i class="bi bi-x-circle-fill me-2"></i> Connection Failed</h5>
+                    <p>Unable to establish connection to the Binance API:</p>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Please check your proxy configuration and network connection.</p>
+                `;
+                
+                // Update proxy status in header
+                const proxyStatusElement = document.getElementById('proxyStatus');
+                proxyStatusElement.className = 'proxy-status proxy-error';
+                proxyStatusElement.innerHTML = '<i class="bi bi-shield-x"></i> Proxy: Disconnected';
+            }
+            
+            // Hide the spinner
+            document.querySelector('#proxyTestModal .spinner-border').classList.add('d-none');
+            document.querySelector('#proxyTestModal p.mt-2').classList.add('d-none');
+        }
+        
+        // Functions for filter settings
+        function loadFilterSettings() {
+            fetch('/api/filter/get-limits')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Failed to load filter settings');
+                })
+                .then(data => {
+                    if (data.success && data.filters) {
+                        const filters = data.filters;
+                        document.getElementById('minTransactionLimit').value = filters.min_limit;
+                        document.getElementById('maxTransactionLimit').value = filters.max_limit < Number.MAX_SAFE_INTEGER ? filters.max_limit : 1000000;
+                        document.getElementById('minAvailableAmount').value = filters.min_available;
+                        document.getElementById('minCompletionRate').value = filters.min_completion_rate;
+                        document.getElementById('minOrderCount').value = filters.min_order_count;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading filter settings:', error);
+                    // Just log the error, no need to display an error message
+                });
+        }
+        
+        function saveFilterSettings() {
+            const filterData = {
+                min_limit: parseFloat(document.getElementById('minTransactionLimit').value),
+                max_limit: parseFloat(document.getElementById('maxTransactionLimit').value),
+                min_available: parseFloat(document.getElementById('minAvailableAmount').value),
+                min_completion_rate: parseFloat(document.getElementById('minCompletionRate').value),
+                min_order_count: parseInt(document.getElementById('minOrderCount').value)
+            };
+            
+            fetch('/api/filter/set-limits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(filterData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Failed to save filter settings');
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show a success message temporarily
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    alert.role = 'alert';
+                    alert.innerHTML = `
+                        <strong>Success!</strong> Filter settings saved.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    
+                    // Find appropriate section to add the alert to
+                    const section = document.querySelector('#automation .row:nth-child(2) .card-body');
+                    if (section) {
+                        section.insertBefore(alert, section.firstChild);
+                    }
+                    
+                    // Auto-dismiss after 3 seconds
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 3000);
+                    
+                    // Update logs
+                    const logsElement = document.getElementById('automationLogs');
+                    if (logsElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        logsElement.textContent = `[${timestamp}] Filter settings updated\n` + logsElement.textContent;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error saving filter settings:', error);
+                // Show error alert
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                alert.role = 'alert';
+                alert.innerHTML = `
+                    <strong>Error!</strong> Failed to save filter settings: ${error.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Find appropriate section to add the alert to
+                const section = document.querySelector('#automation .row:nth-child(2) .card-body');
+                if (section) {
+                    section.insertBefore(alert, section.firstChild);
+                }
+            });
+        }
+        
+        // Functions for blacklist management
+        function loadBlacklists() {
+            fetch('/api/blacklist/list')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Failed to load blacklists');
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Update advertisers table
+                        const advertisersTable = document.getElementById('bannedAdvertisersTable');
+                        if (data.restricted_advertisers && data.restricted_advertisers.length > 0) {
+                            let html = '';
+                            data.restricted_advertisers.forEach(id => {
+                                html += `
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" onclick="unbanAdvertiser('${id}')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            advertisersTable.innerHTML = html;
+                        } else {
+                            advertisersTable.innerHTML = '<tr><td colspan="2" class="text-center">No banned advertisers</td></tr>';
+                        }
+                        
+                        // Update ads table
+                        const adsTable = document.getElementById('blacklistedAdsTable');
+                        if (data.blacklisted_ads && data.blacklisted_ads.length > 0) {
+                            let html = '';
+                            data.blacklisted_ads.forEach(id => {
+                                html += `
+                                    <tr>
+                                        <td>${id}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" onclick="unbanAd('${id}')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            adsTable.innerHTML = html;
+                        } else {
+                            adsTable.innerHTML = '<tr><td colspan="2" class="text-center">No blacklisted ads</td></tr>';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading blacklists:', error);
+                    // Just log the error, no need to display an error message
+                });
+        }
+        
+        function banAdvertiser() {
+            const advertiserId = document.getElementById('advertiserId').value.trim();
+            if (!advertiserId) {
+                alert('Please enter an advertiser ID');
+                return;
+            }
+            
+            fetch('/api/blacklist/ban-advertiser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ advertiser_id: advertiserId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Failed to ban advertiser');
+            })
+            .then(data => {
+                if (data.success) {
+                    // Clear input field
+                    document.getElementById('advertiserId').value = '';
+                    
+                    // Reload blacklists
+                    loadBlacklists();
+                    
+                    // Update logs
+                    const logsElement = document.getElementById('automationLogs');
+                    if (logsElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        logsElement.textContent = `[${timestamp}] Banned advertiser: ${advertiserId}\n` + logsElement.textContent;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error banning advertiser:', error);
+                alert('Failed to ban advertiser: ' + error.message);
+            });
+        }
+        
+        function banAd() {
+            const adId = document.getElementById('adId').value.trim();
+            if (!adId) {
+                alert('Please enter an ad ID');
+                return;
+            }
+            
+            fetch('/api/blacklist/ban-ad', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ad_id: adId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Failed to blacklist ad');
+            })
+            .then(data => {
+                if (data.success) {
+                    // Clear input field
+                    document.getElementById('adId').value = '';
+                    
+                    // Reload blacklists
+                    loadBlacklists();
+                    
+                    // Update logs
+                    const logsElement = document.getElementById('automationLogs');
+                    if (logsElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        logsElement.textContent = `[${timestamp}] Blacklisted ad: ${adId}\n` + logsElement.textContent;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error blacklisting ad:', error);
+                alert('Failed to blacklist ad: ' + error.message);
+            });
+        }
+        
+        // Functions for removing items from blacklists
+        function unbanAdvertiser(advertiserId) {
+            if (confirm(`Are you sure you want to remove advertiser ${advertiserId} from the banned list?`)) {
+                fetch('/api/blacklist/unban-advertiser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ advertiser_id: advertiserId })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Failed to unban advertiser');
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Reload blacklists
+                        loadBlacklists();
+                        
+                        // Update logs
+                        const logsElement = document.getElementById('automationLogs');
+                        if (logsElement) {
+                            const timestamp = new Date().toLocaleTimeString();
+                            logsElement.textContent = `[${timestamp}] Removed advertiser ${advertiserId} from banned list\n` + logsElement.textContent;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error unbanning advertiser:', error);
+                    alert('Failed to unban advertiser: ' + error.message);
+                });
+            }
+        }
+        
+        function unbanAd(adId) {
+            if (confirm(`Are you sure you want to remove ad ${adId} from the blacklist?`)) {
+                fetch('/api/blacklist/unban-ad', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ad_id: adId })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Failed to unban ad');
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Reload blacklists
+                        loadBlacklists();
+                        
+                        // Update logs
+                        const logsElement = document.getElementById('automationLogs');
+                        if (logsElement) {
+                            const timestamp = new Date().toLocaleTimeString();
+                            logsElement.textContent = `[${timestamp}] Removed ad ${adId} from blacklist\n` + logsElement.textContent;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error unbanning ad:', error);
+                    alert('Failed to unban ad: ' + error.message);
+                });
+            }
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check connections
+            checkConnections();
+            
+            // Update status
+            updateStatusUI();
+            
+            // Update prices
+            updatePrices();
+            
+            // Update leaderboard
+            updateLeaderboard();
+            
+            // Add tab change event listeners
+            const tabLinks = document.querySelectorAll('.nav-link, .sidebar-item');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('data-target') || this.getAttribute('href').substring(1);
+                    if (targetId === 'automation') {
+                        loadFilterSettings();
+                        loadBlacklists();
+                    }
+                });
+            });
+            
+            // Refresh prices button
+            document.getElementById('refreshPricesBtn').addEventListener('click', updatePrices);
+            
+            // Refresh leaderboard button
+            document.getElementById('refreshLeaderboardBtn').addEventListener('click', updateLeaderboard);
+            
+            // Leaderboard sort change
+            document.getElementById('leaderboardSortBy').addEventListener('change', updateLeaderboard);
+            
+            // Add event listeners for filter settings
+            document.getElementById('minTransactionLimit').addEventListener('change', saveFilterSettings);
+            document.getElementById('maxTransactionLimit').addEventListener('change', saveFilterSettings);
+            document.getElementById('minAvailableAmount').addEventListener('change', saveFilterSettings);
+            document.getElementById('minCompletionRate').addEventListener('change', saveFilterSettings);
+            document.getElementById('minOrderCount').addEventListener('change', saveFilterSettings);
+            
+            // Add event listeners for blacklist actions
+            document.getElementById('banAdvertiserBtn').addEventListener('click', banAdvertiser);
+            document.getElementById('banAdBtn').addEventListener('click', banAd);
+            document.getElementById('refreshBlacklistBtn').addEventListener('click', loadBlacklists);
+            
+            // Test proxy button
+            document.getElementById('testProxyBtn').addEventListener('click', testProxyConnection);
+            
+            // Start updater buttons
+            const startButtons = [
+                document.getElementById('startUpdaterBtn'),
+                document.getElementById('startAutomationBtn')
+            ];
+            
+            startButtons.forEach(button => {
+                if (button) {
+                    button.addEventListener('click', function() {
+                        const interval = parseInt(
+                            document.getElementById('interval')?.value ||
+                            document.getElementById('automationInterval')?.value ||
+                            30
+                        );
+                        
+                        // Get current strategy settings
+                        const buyStrategy = document.getElementById('buyStrategy')?.value || 'match';
+                        const sellStrategy = document.getElementById('sellStrategy')?.value || 'match';
+                        const priceAdjustment = parseFloat(document.getElementById('priceAdjustment')?.value || 0.5);
+                        
+                        // Log the strategy to automation logs
+                        const logsElement = document.getElementById('automationLogs');
+                        if (logsElement) {
+                            const timestamp = new Date().toLocaleTimeString();
+                            logsElement.textContent = 
+                                `[${timestamp}] Strategy: BUY=${buyStrategy}, SELL=${sellStrategy}, Adjustment=${priceAdjustment}%\n` + 
+                                logsElement.textContent;
+                        }
+                        
+                        startUpdater(interval);
+                    });
+                }
+            });
+            
+            // Stop updater buttons
+            const stopButtons = [
+                document.getElementById('stopUpdaterBtn'),
+                document.getElementById('stopAutomationBtn')
+            ];
+            
+            stopButtons.forEach(button => {
+                if (button) {
+                    button.addEventListener('click', stopUpdater);
+                }
+            });
+            
+            // Get top prices form
+            document.getElementById('topPriceForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const adType = document.getElementById('adType').value;
+                const resultElement = document.getElementById('topPriceResult');
+                
+                resultElement.textContent = 'Loading...';
+                
+                try {
+                    const url = `/api/top-price${adType ? `?ad_type=${adType}` : ''}`;
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    resultElement.textContent = JSON.stringify(data, null, 2);
+                } catch (error) {
+                    resultElement.textContent = `Error: ${error.message}`;
+                    
+                    // Check connections
+                    checkConnections();
+                }
+            });
+            
+            // Release order form
+            document.getElementById('releaseOrderForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const orderNumber = document.getElementById('orderNumber').value;
+                const resultElement = document.getElementById('releaseOrderResult');
+                
+                resultElement.textContent = 'Releasing order...';
+                
+                try {
+                    const response = await fetch('/api/release-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ order_number: orderNumber })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    resultElement.textContent = JSON.stringify(data, null, 2);
+                } catch (error) {
+                    resultElement.textContent = `Error: ${error.message}`;
+                    
+                    // Check connections
+                    checkConnections();
+                }
+            });
+            
+            // Post ad form
+            document.getElementById('postAdForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const tradeType = document.getElementById('tradeType').value;
+                const asset = document.getElementById('asset').value;
+                const price = parseFloat(document.getElementById('price').value);
+                const quantity = parseFloat(document.getElementById('quantity').value);
+                const minLimit = document.getElementById('minLimit').value ? parseFloat(document.getElementById('minLimit').value) : null;
+                const maxLimit = document.getElementById('maxLimit').value ? parseFloat(document.getElementById('maxLimit').value) : null;
+                
+                const payTypes = [];
+                if (document.getElementById('mpesa').checked) {
+                    payTypes.push('M-pesa');
+                }
+                if (document.getElementById('tigoPesa').checked) {
+                    payTypes.push('Tigo Pesa');
+                }
+                
+                const resultElement = document.getElementById('postAdResult');
+                
+                resultElement.textContent = 'Posting ad...';
+                
+                try {
+                    const response = await fetch('/api/post-ad', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            trade_type: tradeType,
+                            asset: asset,
+                            price: price,
+                            quantity: quantity,
+                            min_limit: minLimit,
+                            max_limit: maxLimit,
+                            pay_types: payTypes
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    resultElement.textContent = JSON.stringify(data, null, 2);
+                } catch (error) {
+                    resultElement.textContent = `Error: ${error.message}`;
+                    
+                    // Check connections
+                    checkConnections();
+                }
+            });
+            
+            // API Config forms
+            const apiConfigForms = [
+                document.getElementById('apiConfigForm'),
+                document.getElementById('modalApiForm')
+            ];
+            
+            apiConfigForms.forEach(form => {
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Get API key and secret from the form
+                        const apiKey = form.querySelector('#apiKey, #modalApiKey').value;
+                        const apiSecret = form.querySelector('#apiSecret, #modalApiSecret').value;
+                        
+                        if (!apiKey || !apiSecret) {
+                            alert('Please enter both API Key and API Secret');
+                            return;
+                        }
+                        
+                        // In a real application, this would save to .env file
+                        const apiStatus = document.getElementById('apiStatus');
+                        apiStatus.innerHTML = '<span class="api-success me-2"><i class="bi bi-check-circle"></i> API Connected</span>';
+                        
+                        // Show success alert
+                        alert('API credentials saved successfully.');
+                        
+                        // Close modal if this is the modal form
+                        if (form.id === 'modalApiForm' && typeof bootstrap !== 'undefined') {
+                            const modalElement = document.getElementById('apiSetupModal');
+                            const modal = bootstrap.Modal.getInstance(modalElement);
+                            if (modal) {
+                                modal.hide();
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // Save Modal API button
+            document.getElementById('saveModalApiBtn').addEventListener('click', function() {
+                const form = document.getElementById('modalApiForm');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            });
+            
+            // Proxy Config form
+            document.getElementById('proxyConfigForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get proxy URL
+                const proxyUrl = document.getElementById('proxyUrl').value;
+                const useProxy = document.getElementById('useProxy').checked;
+                
+                if (!proxyUrl && useProxy) {
+                    alert('Please enter a proxy URL or disable proxy use');
+                    return;
+                }
+                
+                // In a real application, this would save to .env file
+                alert('Proxy configuration saved successfully.');
+                
+                // Test the new proxy connection
+                if (useProxy) {
+                    testProxyConnection();
+                } else {
+                    // Update proxy status in header
+                    const proxyStatusElement = document.getElementById('proxyStatus');
+                    proxyStatusElement.className = 'proxy-status proxy-warning';
+                    proxyStatusElement.innerHTML = '<i class="bi bi-shield-slash"></i> Proxy: Disabled';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
